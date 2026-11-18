@@ -1,6 +1,6 @@
 # Restaurant Manager
 
-A console-based restaurant management simulation written in Java. You play the role of the person running the floor: seat guests, take their orders, push orders through the kitchen, serve them, and print the bill at the end.
+A console-based restaurant management simulation written in Java. You play the role of the person running the floor: seat guests, take their orders, push orders through the kitchen, serve them, and print the bill at the end. Completed orders and session summaries are saved to CSV log files automatically.
 
 Everything happens through a simple interactive menu in the terminal.
 
@@ -12,6 +12,7 @@ Everything happens through a simple interactive menu in the terminal.
 - A clear order lifecycle: `PLACED` -> `IN_KITCHEN` -> `READY` -> `SERVED`
 - Billing with a fixed 15% tax and an optional tip, printed as a formatted receipt
 - Tables are cleared automatically after billing
+- CSV logging of every billed order and a one-line summary of each session
 
 ## Requirements
 
@@ -40,10 +41,10 @@ You'll see the main menu:
 === Restaurant Manager ===
 1. View tables
 2. Seat guests
-3. Tick kitchen (PLACED -> IN_KITCHEN)
+3. Tick kitchen
 4. View kitchen queue
-5. Mark order ready (IN_KITCHEN -> READY)
-6. Mark order served (READY -> SERVED)
+5. Mark order ready
+6. Mark order served
 7. Bill a table
 0. Exit
 Enter choice:
@@ -65,7 +66,8 @@ All tests should pass.
 2. Choose `3` to tick the kitchen. The oldest waiting order moves to `IN_KITCHEN`.
 3. Choose `5` to mark that order `READY`.
 4. Choose `6` to mark it `SERVED`.
-5. Choose `7` to bill the table, enter a tip percentage (0 for none), and get your receipt.
+5. Choose `7` to bill the table, enter a tip percentage (0 for none), and get your receipt. The order is also written to the log file.
+6. Choose `0` to exit, which writes the session summary to the log.
 
 The receipt looks like this:
 
@@ -87,6 +89,28 @@ The receipt looks like this:
 ```
 
 For a full walkthrough of every menu option, see the user documentation.
+
+## Log files
+
+The app keeps two CSV files in the project root. Both are created on the first run and appended to on every run after that.
+
+**`order_log.csv`** has one row per billed order:
+
+```
+order_id,table_number,items,subtotal,tax,tip,total,timestamp
+1,1,Burger x2|Soda x2,22.96,3.44,2.30,28.70,2026-05-21 14:30:00
+2,3,Pizza x1,10.99,1.65,0.00,12.64,2026-05-21 14:45:00
+```
+
+**`session_log.csv`** has one summary row per session:
+
+```
+session,date,orders_completed,total_revenue
+1,2026-05-21 14:50:00,2,41.34
+2,2026-05-22 09:30:00,5,201.78
+```
+
+Heads up: the session summary is only written when you exit with option `0`. If you close the terminal window or force-quit, that session won't be recorded. (Orders are still logged at billing time, so the order log isn't affected.)
 
 ## Rules to know about
 

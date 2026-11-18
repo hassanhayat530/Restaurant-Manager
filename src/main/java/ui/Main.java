@@ -4,6 +4,7 @@ import management.KitchenQueue;
 import management.OrderProcessor;
 import management.TableManager;
 import management.BillingService;
+import management.LogService;
 import model.*;
 
 import java.util.List;
@@ -27,9 +28,10 @@ public class Main {
     private static final TableManager tableManager     = new TableManager(5);
     private static final KitchenQueue kitchenQueue     = new KitchenQueue();
     private static final OrderProcessor orderProcessor = new OrderProcessor(kitchenQueue, tableManager);
+    private static final LogService logService         = new LogService();
     private static final BillingService billingService = new BillingService(tableManager);
     private static final Scanner scanner               = new Scanner(System.in);
-    private static int nextOrderId = 1;
+    private static int nextOrderId                     = 1;
 
     /**
      * Launches the restaurant simulation.
@@ -50,7 +52,11 @@ public class Main {
                 case "5" -> advanceOrder(OrderStatus.READY);
                 case "6" -> advanceOrder(OrderStatus.SERVED);
                 case "7" -> billTable();
-                case "0" -> { System.out.println("Goodbye!"); running = false; }
+                case "0" -> {
+                    System.out.println("Goodbye!");
+                    logService.shutdown();
+                    running = false;
+                }
                 default  -> System.out.println("Invalid option, try again.");
             }
             System.out.println();
@@ -119,7 +125,7 @@ public class Main {
         }
 
         if (order.getItems().isEmpty()) {
-            System.out.println("No items added — guests not seated.");
+            System.out.println("No items added - guests not seated.");
             nextOrderId--; // reclaim the ID since we're not using this order
             return;
         }
@@ -138,7 +144,7 @@ public class Main {
     private static void tickKitchen() {
         Optional<Integer> processed = orderProcessor.tickKitchen();
         if (processed.isEmpty()) {
-            System.out.println("Kitchen queue is empty — nothing to tick.");
+            System.out.println("Kitchen queue is empty - nothing to tick.");
             return;
         }
         int tableNumber = processed.get();
@@ -246,7 +252,8 @@ public class Main {
         }
 
         double tipPercentage = promptTip();
-        billingService.printReceiptAndClearTable(selected.getNumber(), tipPercentage);
+        Receipt receipt = billingService.printReceiptAndClearTable(selected.getNumber(), tipPercentage);
+        logService.logCompletedOrder(receipt);
     }
 
     private static double promptTip() {

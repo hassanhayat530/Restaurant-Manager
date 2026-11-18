@@ -2,6 +2,9 @@ package management;
 
 import model.Order;
 import model.OrderItem;
+import model.Receipt;
+
+import java.time.LocalDateTime;
 
 /**
  * Handles billing for completed orders.
@@ -64,8 +67,9 @@ public class BillingService {
      * @param tableNumber   the table number being billed
      * @param tipPercentage the tip percentage to apply
      * @throws IllegalStateException if the table has no current order
+     * @return a {@link Receipt} record holding important immutable data about the order.
      */
-    public void printReceiptAndClearTable(int tableNumber, double tipPercentage) {
+    public Receipt printReceiptAndClearTable(int tableNumber, double tipPercentage) {
         Order order = tableManager.getTableByNumber(tableNumber).getCurrentOrder();
         if (order == null) throw new IllegalStateException("No order at table " + tableNumber);
 
@@ -96,5 +100,7 @@ public class BillingService {
 
         tableManager.getTableByNumber(tableNumber).clear();
         System.out.println("Table " + tableNumber + " has been cleared.");
+
+        return new Receipt(order.getId(), tableNumber, order, subtotal, tax, tip, total, LocalDateTime.now());
     }
 }

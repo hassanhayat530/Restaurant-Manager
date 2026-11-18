@@ -5,7 +5,8 @@
 
 This is a console-based restaurant management simulation. It allows you to manage
 tables, place and process orders, track kitchen workflow, and generate billing
-receipts through an interactive console menu.
+receipts through an interactive console menu. Completed orders and session
+summaries are automatically recorded to log files in the project root.
 
 ---
 
@@ -46,10 +47,10 @@ You will be greeted with the main menu:
 === Restaurant Manager ===
 1. View tables
 2. Seat guests
-3. Tick kitchen (PLACED -> IN_KITCHEN)
+3. Tick kitchen
 4. View kitchen queue
-5. Mark order ready (IN_KITCHEN -> READY)
-6. Mark order served (READY -> SERVED)
+5. Mark order ready
+6. Mark order served
 7. Bill a table
 0. Exit
 Enter choice:
@@ -119,7 +120,7 @@ If you finish adding items without adding anything, the seating is cancelled.
 
 ---
 
-### 3. Tick Kitchen (PLACED -> IN_KITCHEN)
+### 3. Tick Kitchen
 Picks up the order that has been waiting the longest in the kitchen queue and
 advances it from `PLACED` to `IN_KITCHEN`. This simulates the kitchen beginning
 to prepare the order.
@@ -144,30 +145,32 @@ Next in kitchen queue: table 2
 
 ---
 
-### 5. Mark Order Ready (IN_KITCHEN -> READY)
+### 5. Mark Order Ready
 Displays all orders currently being prepared in the kitchen and lets you select
 one to mark as ready. This simulates the kitchen finishing preparation.
 
 Example:
 ```
 --- Orders ---
-[1] Order #1  [IN_KITCHEN]
-Select order (0 to go back): 1
-Order #1 is now [READY].
+[1] Order #1
+Select order (0 to go back):
+1
+Marked order #1 as [READY]
 ```
 
 ---
 
-### 6. Mark Order Served (READY -> SERVED)
+### 6. Mark Order Served
 Displays all orders that are ready to be served and lets you select one to mark
 as served. This simulates a waiter delivering the order to the table.
 
 Example:
 ```
 --- Orders ---
-[1] Order #1  [READY]
-Select order (0 to go back): 1
-Order #1 is now [SERVED].
+[1] Order #1
+Select order (0 to go back):
+1
+Marked order #1 as [SERVED]
 ```
 
 ---
@@ -175,7 +178,8 @@ Order #1 is now [SERVED].
 ### 7. Bill a Table
 Displays all tables with a served order and lets you select one to bill.
 You will be prompted to enter a tip percentage (enter `0` for no tip).
-A formatted receipt is then printed and the table is cleared.
+A formatted receipt is then printed, the table is cleared, and the order
+is recorded to the log file.
 
 Example:
 ```
@@ -198,9 +202,50 @@ Enter tip percentage (e.g. 15 for 15%, 0 for no tip): 10
 +----------------------------------+
 |  TOTAL                 $  28.70  |
 +----------------------------------+
-
 Table 1 has been cleared.
 ```
+
+---
+
+## Log Files
+
+The application automatically maintains two CSV log files in the project root.
+Both files are created on the first run and appended to on every subsequent run.
+
+### order_log.csv
+Records every completed order. Each row represents one billed order with the
+following columns:
+
+```
+order_id, table_number, items, subtotal, tax, tip, total, timestamp
+```
+
+Example:
+```
+order_id,table_number,items,subtotal,tax,tip,total,timestamp
+1,1,Burger x2|Soda x2,22.96,3.44,2.30,28.70,2026-05-21 14:30:00
+2,3,Pizza x1,10.99,1.65,0.00,12.64,2026-05-21 14:45:00
+```
+
+### session_log.csv
+Records a one-line summary for each session (each run of the application).
+Written automatically when you exit via option `0`. Each row contains the
+following columns:
+
+```
+session, date, orders_completed, total_revenue
+```
+
+Example:
+```
+session,date,orders_completed,total_revenue
+1,2026-05-21 14:50:00,2,41.34
+2,2026-05-22 09:30:00,5,201.78
+```
+
+Note that the session summary is only written when you exit via option `0`.
+Closing the terminal window or force-quitting the application may result in
+the current session not being recorded.
 
 ---
 
@@ -222,10 +267,10 @@ The following is a complete walkthrough of a typical session from seating to bil
 
 **Step 7**: Select `1` to view tables and confirm table 1 is free again.
 
-**Step 8**: Select `0` to exit.
+**Step 8**: Select `0` to exit. The session summary is written to `session_log.csv`.
 
 ---
-
+ 
 ## Notes
 
 - The simulation starts with **5 tables** numbered 1 through 5.
@@ -233,3 +278,4 @@ The following is a complete walkthrough of a typical session from seating to bil
 - A table cannot be seated until it is `FREE`.
 - An order cannot be billed until it has reached the `SERVED` state.
 - Orders are processed by the kitchen in the order they were placed when you tick kitchen. (first in, first out).
+- Both log files are created automatically in the project root on first run.
