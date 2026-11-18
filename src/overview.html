@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+
+<p>
+    A console-based restaurant management simulation written in Java.
+    The application allows a user to manage tables, place and process orders,
+    track kitchen workflow, and generate billing receipts — all through an
+    interactive console menu.
+</p>
+
+<h2>Architecture Overview</h2>
+<p>
+    The project is divided into three packages, each with a distinct responsibility:
+</p>
+<ul>
+    <li>
+        <strong>model</strong> — Plain data classes representing the core entities of the simulation:
+        tables, orders, order items, and menu items. Also contains the enumerations
+        {@code TableStatus} and {@code OrderStatus} which define the lifecycle states
+        of tables and orders respectively.
+    </li>
+    <li>
+        <strong>management</strong> — Service classes that coordinate business logic.
+        {@code TableManager} owns the collection of tables and enforces seating rules.
+        {@code KitchenQueue} maintains a FIFO queue of pending orders.
+        {@code OrderProcessor} moves orders through the kitchen pipeline.
+        {@code BillingService} calculates totals, applies tax and tip, and prints receipts.
+    </li>
+    <li>
+        <strong>ui</strong> — The console entry point. {@code Main} drives the interactive
+        loop, reads user input, and delegates all actions to the management layer.
+    </li>
+</ul>
+
+<h2>Order Lifecycle</h2>
+<p>
+    Every order progresses through four states defined by {@code OrderStatus}:
+</p>
+<ol>
+    <li><strong>PLACED</strong> - the order has been taken and is waiting in the kitchen queue.</li>
+    <li><strong>IN_KITCHEN</strong> - the order has been picked up and is being prepared.</li>
+    <li><strong>READY</strong> - the order has been prepared and is ready to be served.</li>
+    <li><strong>SERVED</strong> - the order has been delivered to the table and is ready to be billed.</li>
+</ol>
+<p>
+    Orders cannot skip states. Each transition is enforced by {@code OrderProcessor}
+    and any attempt to advance beyond {@code SERVED} throws an {@code IllegalStateException}.
+</p>
+
+<h2>Running the Application</h2>
+<p>
+    Build and run the project using Maven:
+</p>
+<pre>
+    mvn package
+    java -jar target/restaurant-management-1.0.jar
+</pre>
+<p>
+    See {@code user-documentation.md} for a full walkthrough of the console interface
+    and a complete example session.
+</p>
+
+</body>
+</html>
